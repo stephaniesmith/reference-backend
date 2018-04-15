@@ -4,7 +4,7 @@
   "description": "Reference Backend Server ===",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"test mongo version\" && exit 0"
+    "test": "mongod --version && exit 0"
   },
   "repository": {
     "type": "git",
