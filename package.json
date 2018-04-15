@@ -1,0 +1,22 @@
+{
+  "name": "reference-backend",
+  "version": "1.0.0",
+  "description": "Reference Backend Server ===",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"test mongo version\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alchemy-fullstack-js-spring-2018/reference-backend.git"
+  },
+  "author": "Marty Nelson <marty@martypdx.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alchemy-fullstack-js-spring-2018/reference-backend/issues"
+  },
+  "homepage": "https://github.com/alchemy-fullstack-js-spring-2018/reference-backend#readme",
+  "devDependencies": {
+    "eslint": "^4.19.1"
+  }
+}
