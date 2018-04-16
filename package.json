@@ -4,7 +4,11 @@
   "description": "Reference Backend Server ===",
   "main": "index.js",
   "scripts": {
-    "test": "mongod --version && exit 0"
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "npm run test:mocha",
+    "test:mocha": "mocha",
+    "test:watch": "nodemon --exec 'npm run test:mocha'"
   },
   "repository": {
     "type": "git",
