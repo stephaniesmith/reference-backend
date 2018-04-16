@@ -13,7 +13,7 @@ describe('pirate API', () => {
 
     let zoro = {
         name: 'Roronoa Zoro',
-        role: 'swordsman',
+        role: 'crew',
         crew: 'Straw Hats'
     };
 
@@ -50,7 +50,7 @@ describe('pirate API', () => {
     });
 
     it('updates pirate by id', () => {
-        zoro.role = 'swordsperson';
+        zoro.role = 'first sword';
 
         return request
             .put(`/pirates/${zoro._id}`)
