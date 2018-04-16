@@ -21,6 +21,15 @@
   },
   "homepage": "https://github.com/alchemy-fullstack-js-spring-2018/reference-backend#readme",
   "devDependencies": {
-    "eslint": "^4.19.1"
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "eslint": "^4.19.1",
+    "mocha": "^5.1.0",
+    "nodemon": "^1.17.3"
+  },
+  "dependencies": {
+    "express": "^4.16.3",
+    "morgan": "^1.9.0",
+    "shortid": "^2.2.8"
   }
 }
