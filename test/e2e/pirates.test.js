@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 const request = require('./request');
-const Pirate = require('../lib/models/model');
+const Pirate = require('../../lib/models/model');
 
 describe('Pirate API', () => {
 
