@@ -1,41 +1,73 @@
 const { assert } = require('chai');
 const request = require('./request');
-const Pirate = require('../../lib/models/model');
+const Pirate = require('../../lib/models/Pirate');
+const { dropCollection } = require('./db');
 
 describe('Pirate API', () => {
+
+    before(() => dropCollection('pirates'));
 
     let luffy = {
         name: 'Monkey D. Luffy',
         role: 'captain',
-        crew: 'Straw Hats'
+        crew: 'Straw Hat Pirates',
+        wardrobe: {
+            shoes: 'flip-flops'
+        },
+        weapons: ['hands', 'feet', 'head']
     };
 
     let zoro = {
         name: 'Roronoa Zoro',
         role: 'crew',
-        crew: 'Straw Hats'
+        crew: 'Straw Hats',
+        wardrobe: {
+            shoes: 'boots'
+        },
+        weapons: ['sword', 'sword', 'sword']
     };
 
-    // // remember we started with this!
-    // it('saves and gets a pirate', () => {
-    //     return Pirate.save(data)
+    // remember we started with this!
+    // it.skip('saves and gets a pirate', () => {
+    //     return new Pirate(luffy).save()
     //         .then(saved => {
-    //             assert.deepEqual(body, { _id: saved._id, ...luffy });
+    //             saved = saved.toJSON();
+    //             const { _id, __v, joined } = saved;
+    //             assert.ok(_id);
+    //             assert.equal(__v, 0);
+    //             assert.ok(joined);
+    //             assert.deepEqual(saved, {
+    //                 _id, __v, joined,
+    //                 ...luffy
+    //             });
+    //             luffy = saved;
+    //             return Pirate.findById(saved._id).lean();
+    //         })
+    //         .then(found => {
+    //             assert.deepEqual(found, luffy);
     //         });
     // });
 
-    it('saves a pirate', () => {
+    it('saves and gets a pirate', () => {
         return request.post('/pirates')
             .send(luffy)
             .then(({ body }) => {
-                assert.ok(body._id);
-                assert.deepEqual(body, { _id: body._id, ...luffy });
+                const { _id, __v, joined } = body;
+                assert.ok(_id);
+                assert.equal(__v, 0);
+                assert.ok(joined);
+                assert.deepEqual(body, {
+                    _id, __v, joined,
+                    ...luffy
+                });
                 luffy = body;
             });
     });
 
+    const roundTrip = doc => JSON.parse(JSON.stringify(doc.toJSON()));
+
     it('gets a pirate by id', () => {
-        return Pirate.save(zoro)
+        return Pirate.create(zoro).then(roundTrip)
             .then(saved => {
                 zoro = saved;
                 return request.get(`/pirates/${zoro._id}`);
@@ -52,17 +84,26 @@ describe('Pirate API', () => {
             .send(zoro)
             .then(({ body }) => {
                 assert.deepEqual(body, zoro);
-                return Pirate.findById(zoro._id);
+                return Pirate.findById(zoro._id).then(roundTrip);
             })
             .then(updated => {
                 assert.deepEqual(updated, zoro);
             });
     });
 
-    it('gets all pirates', () => {
+    const getFields = ({ _id, name, role, crew }) => ({ _id, name, role, crew });
+
+    it('gets all pirates but only _id, name, role and crew', () => {
         return request.get('/pirates')
             .then(({ body }) => {
-                assert.deepEqual(body, [luffy, zoro]);
+                assert.deepEqual(body, [luffy, zoro].map(getFields));
+            });
+    });
+
+    it('queries pirates', () => {
+        return request.get('/pirates?role=captain')
+            .then(({ body }) => {
+                assert.deepEqual(body, [luffy].map(getFields));
             });
     });
 
@@ -72,7 +113,7 @@ describe('Pirate API', () => {
                 return Pirate.findById(zoro._id);
             })
             .then(found => {
-                assert.isUndefined(found);
+                assert.isNull(found);
             });
     });
 
