@@ -65,9 +65,9 @@ describe('Pirate API', () => {
     });
    
     it('gets a pirate by id', () => {
-        return new Pirate(zoro).save()
+        return new Pirate(zoro).save().then(roundTrip)
             .then(saved => {
-                zoro = roundTrip(saved);
+                zoro = saved;
                 return request.get(`/pirates/${zoro._id}`);
             })
             .then(({ body }) => {
@@ -82,9 +82,8 @@ describe('Pirate API', () => {
             .send(zoro)
             .then(({ body }) => {
                 assert.deepEqual(body, zoro);
-                return Pirate.findById(zoro._id);
+                return Pirate.findById(zoro._id).then(roundTrip);
             })
-            .then(roundTrip)
             .then(updated => {
                 assert.deepEqual(updated, zoro);
             });
