@@ -14,7 +14,7 @@ describe('Pirate API', () => {
         wardrobe: {
             shoes: 'flip-flops'
         },
-        weapons: ['hands', 'feet', 'head']
+        weapons: []
     };
 
     let zoro = {
@@ -24,29 +24,8 @@ describe('Pirate API', () => {
         wardrobe: {
             shoes: 'boots'
         },
-        weapons: ['sword', 'sword', 'sword']
+        weapons: []
     };
-
-    // remember we started with this!
-    // it.skip('saves and gets a pirate', () => {
-    //     return new Pirate(luffy).save()
-    //         .then(saved => {
-    //             saved = saved.toJSON();
-    //             const { _id, __v, joined } = saved;
-    //             assert.ok(_id);
-    //             assert.equal(__v, 0);
-    //             assert.ok(joined);
-    //             assert.deepEqual(saved, {
-    //                 _id, __v, joined,
-    //                 ...luffy
-    //             });
-    //             luffy = saved;
-    //             return Pirate.findById(saved._id).lean();
-    //         })
-    //         .then(found => {
-    //             assert.deepEqual(found, luffy);
-    //         });
-    // });
 
     it('saves and gets a pirate', () => {
         return request.post('/pirates')
