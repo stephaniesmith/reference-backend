@@ -2,7 +2,7 @@ require('dotenv').config({ path: './test/e2e/.env' });
 const connect = require('../../lib/util/connect');
 const mongoose = require('mongoose');
 
-before(() => connect(process.env.MONGODB_URI));    
+before(() => connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/pirates-test'));    
 after(() => mongoose.connection.close());
 
 module.exports = {

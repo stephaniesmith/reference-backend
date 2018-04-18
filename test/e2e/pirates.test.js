@@ -103,4 +103,51 @@ describe('Pirate API', () => {
                 assert.match(response.body.error, /^Pirate id/);
             });
     });
+
+    const checkOk = res => {
+        if(!res.ok) throw res.error;
+        return res;
+    };
+
+    describe('Pirate Weapons API', () => {
+
+        const weapon = { type: 'kick', damage: 13 };
+
+        it('Adds a weapon', () => {
+            return request.post(`/pirates/${luffy._id}/weapons`)
+                .send(weapon)
+                .then(checkOk)
+                .then(({ body }) => {
+                    assert.isDefined(body._id);
+                    weapon._id = body._id;
+                    assert.deepEqual(body, weapon);
+
+                    return Pirate.findById(luffy._id).then(roundTrip);
+                })
+                .then(({ weapons }) => {
+                    assert.deepEqual(weapons, [weapon]);
+                });
+        });
+
+        it('Updates a weapon', () => {
+            weapon.damage = 16;
+            return request.put(`/pirates/${luffy._id}/weapons/${weapon._id}`)
+                .send(weapon)
+                .then(checkOk)
+                .then(({ body }) => {
+                    assert.equal(body.damage, weapon.damage);
+                });
+        });
+
+        it('Removes a weapon', () => {
+            return request.delete(`/pirates/${luffy._id}/weapons/${weapon._id}`)
+                .then(checkOk)
+                .then(() => {
+                    return Pirate.findById(luffy._id).then(roundTrip);                    
+                })
+                .then(({ weapons }) => {
+                    assert.deepEqual(weapons, []);
+                });
+        });
+    });
 });
