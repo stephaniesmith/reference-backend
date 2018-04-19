@@ -1,5 +1,7 @@
 const { assert } = require('chai');
+const { Types } = require('mongoose');
 const Pirate = require('../../lib/models/Pirate');
+const { getErrors } = require('./helpers');
 
 describe('Pirate model', () => {
 
@@ -7,7 +9,7 @@ describe('Pirate model', () => {
         const data = {
             name: 'Monkey D. Luffy',
             role: 'captain',
-            crew: 'Straw Hats',
+            crew: Types.ObjectId(),
             joined: new Date(),
             wardrobe: {
                 hat: 'straw',
@@ -37,15 +39,9 @@ describe('Pirate model', () => {
         assert.isAtMost(pirate.joined - Date.now(), 5);
     });
 
-    const getValidationErrors = validation => {
-        assert.isDefined(validation, 'expected validation errors but got none');
-        return validation.errors;
-    };
-
     it('required fields', () => {
         const pirate = new Pirate({});
-        const errors = getValidationErrors(pirate.validateSync());
-        assert.equal(Object.keys(errors).length, 3);
+        const errors = getErrors(pirate.validateSync(), 3);
         assert.equal(errors.name.kind, 'required');
         assert.equal(errors.role.kind, 'required');
         assert.equal(errors['wardrobe.shoes'].kind, 'required');
@@ -54,11 +50,12 @@ describe('Pirate model', () => {
     it('role must be enum, bounty must be positive number', () => {
         const pirate = new Pirate({
             name: 'test', 
-            crew: 'test', 
+            crew: Types.ObjectId(), 
             role: 'bad',
-            bounty: -500
+            bounty: -500,
+            wardrobe: { shoes: 'shoes' }
         });
-        const errors = getValidationErrors(pirate.validateSync());
+        const errors = getErrors(pirate.validateSync(), 2);
         assert.equal(errors['role'].kind, 'enum');
         assert.equal(errors['bounty'].kind, 'min');
     });
@@ -69,7 +66,7 @@ describe('Pirate model', () => {
                 { type: 'too small', damage: 0 },
             ]
         });
-        const errors = getValidationErrors(pirate.validateSync());
+        const errors = getErrors(pirate.validateSync());
         assert.equal(errors['weapons.0.damage'].kind, 'min');
     });
 
@@ -79,7 +76,7 @@ describe('Pirate model', () => {
                 { type: 'too big', damage: 31 },
             ]
         });
-        const errors = getValidationErrors(pirate.validateSync());
+        const errors = getErrors(pirate.validateSync());
         assert.equal(errors['weapons.0.damage'].kind, 'max');
     });
 });
