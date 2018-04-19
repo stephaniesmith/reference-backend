@@ -1,4 +1,5 @@
 const { assert } = require('chai');
+const { Types } = require('mongoose');
 const Crew = require('../../lib/models/Crew');
 const { getErrors } = require('./helpers');
 
@@ -8,7 +9,7 @@ describe('Crew model', () => {
         const data = {
             name: 'Straw Hats',
             flag: 'https://images-na.ssl-images-amazon.com/images/I/814tPeVWRDL._SL1500_.jpg',
-            ships: ['Sunny'],
+            ships: [Types.ObjectId()],
         };
 
         const crew = new Crew(data);
