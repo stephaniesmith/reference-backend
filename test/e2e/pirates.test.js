@@ -2,9 +2,22 @@ const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
 
-describe.skip('Pirate API', () => {
+describe('Pirate API', () => {
 
     before(() => dropCollection('pirates'));
+    before(() => dropCollection('crews'));
+
+    let strawHats = {
+        name: 'Straw Hats'
+    };
+
+    before(() => {
+        return request.post('/crews')
+            .send(strawHats)
+            .then(({ body }) => {
+                strawHats = body;
+            });
+    });
 
     let luffy = {
         name: 'Monkey D. Luffy',
@@ -32,6 +45,7 @@ describe.skip('Pirate API', () => {
     };
 
     it('saves and gets a pirate', () => {
+        luffy.crew = strawHats._id;
         return request.post('/pirates')
             .send(luffy)
             .then(checkOk)
@@ -49,6 +63,8 @@ describe.skip('Pirate API', () => {
     });
 
     it('gets a pirate by id', () => {
+        zoro.crew = strawHats._id;
+
         return request.post('/pirates')
             .send(zoro)
             .then(checkOk)

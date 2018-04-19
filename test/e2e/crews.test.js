@@ -1,6 +1,7 @@
 const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
+const { Types } = require('mongoose');
 
 describe('Crews API', () => {
 
@@ -71,31 +72,22 @@ describe('Crews API', () => {
             });
     });
 
-    // const getFields = ({ _id, name }) => ({ _id, name });
+    const getFields = ({ _id, name }) => ({ _id, name });
 
     it.skip('gets all crews with pirate count', () => {
         return request.get('/crews')
             .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body, [sunny, navy].map(getFields));
+                assert.deepEqual(body, [strawHats].map(getFields));
             });
     });
 
-    it.skip('deletes a crew', () => {
-        return request.delete(`/crews/${navy._id}`)
-            .then(() => {
-                return request.get(`/crews/${navy._id}`);
-            })
-            .then(res => {
-                assert.equal(res.status, 404);
-            });
-    });
-
-    it.skip('returns 404 on get of non-existent id', () => {
-        return request.get(`/crews/${navy._id}`)
+    it('returns 404 on get of non-existent id', () => {
+        const noExistId = Types.ObjectId();
+        return request.get(`/crews/${noExistId}`)
             .then(response => {
                 assert.equal(response.status, 404);
-                assert.match(response.body.error, new RegExp(navy._id));
+                assert.match(response.body.error, new RegExp(noExistId));
             });
     });
 
