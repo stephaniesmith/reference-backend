@@ -1,6 +1,5 @@
 const { assert } = require('chai');
 const request = require('./request');
-const Pirate = require('../../lib/models/Pirate');
 const { dropCollection } = require('./db');
 
 describe('Pirate API', () => {
@@ -27,9 +26,15 @@ describe('Pirate API', () => {
         weapons: []
     };
 
+    const checkOk = res => {
+        if(!res.ok) throw res.error;
+        return res;
+    };
+
     it('saves and gets a pirate', () => {
         return request.post('/pirates')
             .send(luffy)
+            .then(checkOk)
             .then(({ body }) => {
                 const { _id, __v, joined } = body;
                 assert.ok(_id);
@@ -43,12 +48,12 @@ describe('Pirate API', () => {
             });
     });
 
-    const roundTrip = doc => JSON.parse(JSON.stringify(doc.toJSON()));
-
     it('gets a pirate by id', () => {
-        return Pirate.create(zoro).then(roundTrip)
-            .then(saved => {
-                zoro = saved;
+        return request.post('/pirates')
+            .send(zoro)
+            .then(checkOk)
+            .then(({ body }) => {
+                zoro = body;
                 return request.get(`/pirates/${zoro._id}`);
             })
             .then(({ body }) => {
@@ -61,12 +66,13 @@ describe('Pirate API', () => {
 
         return request.put(`/pirates/${zoro._id}`)
             .send(zoro)
+            .then(checkOk)
             .then(({ body }) => {
                 assert.deepEqual(body, zoro);
-                return Pirate.findById(zoro._id).then(roundTrip);
+                return request.get(`/pirates/${zoro._id}`);
             })
-            .then(updated => {
-                assert.deepEqual(updated, zoro);
+            .then(({ body }) => {
+                assert.deepEqual(body, zoro);
             });
     });
 
@@ -74,6 +80,7 @@ describe('Pirate API', () => {
 
     it('gets all pirates but only _id, name, role and crew', () => {
         return request.get('/pirates')
+            .then(checkOk)
             .then(({ body }) => {
                 assert.deepEqual(body, [luffy, zoro].map(getFields));
             });
@@ -81,6 +88,7 @@ describe('Pirate API', () => {
 
     it('queries pirates', () => {
         return request.get('/pirates?role=captain')
+            .then(checkOk)
             .then(({ body }) => {
                 assert.deepEqual(body, [luffy].map(getFields));
             });
@@ -89,10 +97,10 @@ describe('Pirate API', () => {
     it('deletes a pirate', () => {
         return request.delete(`/pirates/${zoro._id}`)
             .then(() => {
-                return Pirate.findById(zoro._id);
+                return request.get(`/pirates/${zoro._id}`);
             })
-            .then(found => {
-                assert.isNull(found);
+            .then(res => {
+                assert.equal(res.status, 404);
             });
     });
 
@@ -100,14 +108,9 @@ describe('Pirate API', () => {
         return request.get(`/pirates/${zoro._id}`)
             .then(response => {
                 assert.equal(response.status, 404);
-                assert.match(response.body.error, /^Pirate id/);
+                assert.match(response.body.error, new RegExp(zoro._id));
             });
     });
-
-    const checkOk = res => {
-        if(!res.ok) throw res.error;
-        return res;
-    };
 
     describe('Pirate Weapons API', () => {
 
@@ -122,10 +125,10 @@ describe('Pirate API', () => {
                     weapon._id = body._id;
                     assert.deepEqual(body, weapon);
 
-                    return Pirate.findById(luffy._id).then(roundTrip);
+                    return request.get(`/pirates/${luffy._id}`);
                 })
-                .then(({ weapons }) => {
-                    assert.deepEqual(weapons, [weapon]);
+                .then(({ body }) => {
+                    assert.deepEqual(body.weapons, [weapon]);
                 });
         });
 
@@ -143,10 +146,10 @@ describe('Pirate API', () => {
             return request.delete(`/pirates/${luffy._id}/weapons/${weapon._id}`)
                 .then(checkOk)
                 .then(() => {
-                    return Pirate.findById(luffy._id).then(roundTrip);                    
+                    return request.get(`/pirates/${luffy._id}`);                    
                 })
-                .then(({ weapons }) => {
-                    assert.deepEqual(weapons, []);
+                .then(({ body }) => {
+                    assert.deepEqual(body.weapons, []);
                 });
         });
     });
