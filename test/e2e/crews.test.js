@@ -103,4 +103,23 @@ describe('Crews API', () => {
             });
     });
 
+    it('returns 400 on attempt to delete crew with pirates', () => {
+        return request.delete(`/crews/${strawHats._id}`)
+            .then(response => {
+                assert.equal(response.status, 400);
+                assert.match(response.body.error, /^Cannot delete/);
+            });      
+    });
+
+    it('can delete crew when no pirates', () => {
+        luffy.crew = null;
+        return request.put(`/pirates/${luffy._id}`)
+            .send(luffy)
+            .then(() => {
+                return request.delete(`/crews/${strawHats._id}`);
+            })
+            .then(response => {
+                assert.equal(response.status, 200);
+            });      
+    });
 });
