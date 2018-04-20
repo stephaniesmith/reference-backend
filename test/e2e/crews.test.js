@@ -6,12 +6,10 @@ const { Types } = require('mongoose');
 describe('Crews API', () => {
 
     before(() => dropCollection('ships'));
+    before(() => dropCollection('pirates'));
     before(() => dropCollection('crews'));
 
-    let sunny = {
-        name: 'Sunny',
-        sails: 5
-    };
+    let sunny = { name: 'Sunny', sails: 5 };
 
     before(() => {
         return request.post('/ships')
@@ -50,31 +48,45 @@ describe('Crews API', () => {
             });
     });
 
-    it('gets a crew by id', () => {
-        return request.get(`/crews/${strawHats._id}`)
+    let luffy = {
+        name: 'Monkey D. Luffy',
+        role: 'captain',
+        crew: 'Straw Hat Pirates',
+        wardrobe: {
+            shoes: 'flip-flops'
+        },
+        weapons: []
+    };
+
+    it('adds pirate to crew', () => {
+        luffy.crew = strawHats._id;
+        return request.post('/pirates')
+            .send(luffy)
             .then(({ body }) => {
-                assert.deepEqual(body, strawHats);
+                luffy = body;
             });
     });
 
-    it('update a crew', () => {
-        strawHats.name = 'Straw Hat Pirates';
-
-        return request.put(`/crews/${strawHats._id}`)
-            .send(strawHats)
-            .then(checkOk)
+    it('gets a crew by id', () => {
+        return request.get(`/crews/${strawHats._id}`)
             .then(({ body }) => {
-                assert.deepEqual(body, strawHats);
-                return request.get(`/crews/${strawHats._id}`);
-            })
-            .then(({ body }) => {
-                assert.deepEqual(body, strawHats);
+                assert.deepEqual(body, {
+                    ...strawHats,
+                    pirates: [{
+                        _id: luffy._id,
+                        name: luffy.name
+                    }],
+                    ships: [{
+                        _id: sunny._id,
+                        name: sunny.name
+                    }]
+                });
             });
     });
 
     const getFields = ({ _id, name }) => ({ _id, name });
 
-    it.skip('gets all crews with pirate count', () => {
+    it('gets all crews with pirate count', () => {
         return request.get('/crews')
             .then(checkOk)
             .then(({ body }) => {

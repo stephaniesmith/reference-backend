@@ -44,7 +44,7 @@ describe('Pirate API', () => {
         return res;
     };
 
-    it('saves and gets a pirate', () => {
+    it('saves a pirate', () => {
         luffy.crew = strawHats._id;
         return request.post('/pirates')
             .send(luffy)
@@ -73,7 +73,12 @@ describe('Pirate API', () => {
                 return request.get(`/pirates/${zoro._id}`);
             })
             .then(({ body }) => {
-                assert.deepEqual(body, zoro);
+                assert.deepEqual(body, {
+                    ...zoro,
+                    crew: {
+                        _id: strawHats._id, name: strawHats.name
+                    }
+                });
             });
     });
 
@@ -88,13 +93,20 @@ describe('Pirate API', () => {
                 return request.get(`/pirates/${zoro._id}`);
             })
             .then(({ body }) => {
-                assert.deepEqual(body, zoro);
+                assert.equal(body.role, zoro.role);
             });
     });
 
-    const getFields = ({ _id, name, role, crew }) => ({ _id, name, role, crew });
+    const getFields = ({ _id, name, role }) => {
+        return { 
+            _id, name, role, 
+            crew: {
+                _id: strawHats._id, name: strawHats.name
+            } 
+        };
+    };
 
-    it('gets all pirates but only _id, name, role and crew', () => {
+    it('gets all pirates', () => {
         return request.get('/pirates')
             .then(checkOk)
             .then(({ body }) => {
