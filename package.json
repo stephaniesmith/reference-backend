@@ -4,7 +4,7 @@
   "description": "Reference Backend Server ===",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint lib test",
     "pretest": "npm run lint",
     "test:mocha": "mocha  --recursive",
     "test": "npm run test:mocha",
