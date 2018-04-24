@@ -1,18 +1,23 @@
 const { assert } = require('chai');
 const request = require('./request');
-const { dropCollection } = require('./db');
+const { dropCollection, createToken } = require('./db');
 const { Types } = require('mongoose');
 
 describe('Crews API', () => {
 
+    before(() => dropCollection('users'));
     before(() => dropCollection('ships'));
     before(() => dropCollection('pirates'));
     before(() => dropCollection('crews'));
+
+    let token = '';
+    before(() => createToken().then(t => token = t));
 
     let sunny = { name: 'Sunny', sails: 5 };
 
     before(() => {
         return request.post('/api/ships')
+            .set('Authorization', token)
             .send(sunny)
             .then(({ body }) => {
                 sunny = body;
